@@ -3,41 +3,40 @@ import User from "../models/User.js";
 import School from "../models/School.js";
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || "edupay_super_secret_jwt_key_12345", {
-    expiresIn: "30d",
-  });
+  return jwt.sign(
+    { id },
+    process.env.JWT_SECRET || "edupay_super_secret_jwt_key_12345",
+    { expiresIn: "30d" }
+  );
 };
 
-// @desc    Auth user & get token
-// @route   POST /api/auth/login
-// @access  Public
+// LOGIN
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Special admin login fallback/seeding
     if (email === "PP@admin.com" && password === "PP@access.com") {
       let admin = await User.findOne({ email });
+
       if (!admin) {
-        // Create a default school if none exists
         let school = await School.findOne();
+
         if (!school) {
           school = await School.create({
             name: "EduPay Beacon School",
             address: "Gulshan-e-Iqbal, Karachi",
-            phone: "+92 300 1234567"
+            phone: "+92 300 1234567",
           });
         }
 
         admin = await User.create({
           name: "System Admin",
           email: "PP@admin.com",
-          password: "PP@access.com", // will be hashed by pre-save hook
+          password: "PP@access.com",
           role: "admin",
-          schoolId: school._id
+          schoolId: school._id,
         });
 
-        // Set admin ID on school
         school.adminId = admin._id;
         await school.save();
       }
@@ -52,62 +51,55 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    console.log("Login Attempt:", { email, password });
     const user = await User.findOne({ email });
-    console.log("User found in DB:", user);
 
-    if (user) {
-      const isMatch = await user.matchPassword(password);
-      console.log("Password comparison result:", isMatch);
-      
-      if (isMatch) {
-        return res.json({
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          schoolId: user.schoolId,
-          token: generateToken(user._id),
-        });
-      }
+    if (user && (await user.matchPassword(password))) {
+      return res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        schoolId: user.schoolId,
+        token: generateToken(user._id),
+      });
     }
-    
+
     return res.status(401).json({ message: "Invalid email or password" });
+
   } catch (error) {
+    console.error("Login Error:", error);
     return res.status(500).json({ message: error.message });
   }
 };
 
-// @desc    Register a new user (parent or teacher)
-// @route   POST /api/auth/register
-// @access  Public
+// REGISTER
 export const registerUser = async (req, res) => {
   const { name, email, password, role, schoolId } = req.body;
 
   try {
-    console.log("Register Attempt:", { name, email, password, role, schoolId });
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      console.log("User already exists with email:", email);
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Find a default school if schoolId is not passed
     let assignedSchoolId = schoolId;
-    if (!assignedSchoolId && req.user && req.user.schoolId) {
+
+    if (!assignedSchoolId && req.user?.schoolId) {
       assignedSchoolId = req.user.schoolId;
     }
 
     if (!assignedSchoolId) {
       let school = await School.findOne();
+
       if (!school) {
         school = await School.create({
           name: "EduPay Beacon School",
           address: "Gulshan-e-Iqbal, Karachi",
-          phone: "+92 300 1234567"
+          phone: "+92 300 1234567",
         });
       }
+
       assignedSchoolId = school._id;
     }
 
@@ -119,43 +111,39 @@ export const registerUser = async (req, res) => {
       schoolId: assignedSchoolId,
     });
 
-    console.log("Created User in DB:", user);
+    return res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      schoolId: user.schoolId,
+    });
 
-    if (user) {
-      return res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        schoolId: user.schoolId,
-      });
-    }
-
-    return res.status(400).json({ message: "Invalid user data" });
   } catch (error) {
     console.error("Register Error:", error);
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
   }
 };
 
-// @desc    Get user profile
-// @route   GET /api/auth/profile
-// @access  Private
+// PROFILE
 export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate("schoolId");
 
-    if (user) {
-      return res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        schoolId: user.schoolId,
-      });
-    } else {
+    if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    return res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      schoolId: user.schoolId,
+    });
+
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
