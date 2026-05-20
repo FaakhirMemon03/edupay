@@ -68,7 +68,14 @@ const translations = {
     paidDate: "Paid Date",
     languageToggle: "اردو",
     activityPayment: "payment received",
-    activityAdded: "student registered"
+    activityAdded: "student registered",
+    signupTitle: "EduPay Sign Up",
+    signupSuccess: "Account created successfully! Redirecting to login...",
+    signupFailed: "Signup failed. Please try again.",
+    dontHaveAccount: "Don't have an account?",
+    alreadyHaveAccount: "Already have an account?",
+    signUp: "Sign Up",
+    login: "Login"
   },
   ur: {
     appTitle: "ایجو پے",
@@ -135,7 +142,14 @@ const translations = {
     paidDate: "ادائیگی کی تاریخ",
     languageToggle: "English",
     activityPayment: "فیس موصول ہو گئی",
-    activityAdded: "طالب علم کا اندراج ہوا"
+    activityAdded: "طالب علم کا اندراج ہوا",
+    signupTitle: "ایجو پے رجسٹریشن",
+    signupSuccess: "اکاؤنٹ کامیابی سے بنا دیا گیا! لاگ ان کی طرف لے جایا جا رہا ہے...",
+    signupFailed: "رجسٹریشن ناکام ہو گئی۔ دوبارہ کوشش کریں۔",
+    dontHaveAccount: "اکاؤنٹ نہیں ہے؟",
+    alreadyHaveAccount: "پہلے سے ہی اکاؤنٹ موجود ہے؟",
+    signUp: "اکاؤنٹ بنائیں",
+    login: "لاگ ان"
   }
 };
 
