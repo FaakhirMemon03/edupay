@@ -22,8 +22,7 @@ const PrivateRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
-const Layout = ({ children }) => {
-  const [activePage, setActivePage] = useState("dashboard");
+const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -36,28 +35,18 @@ const Layout = ({ children }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Map page identifiers to components
-  const pageMap = {
-    dashboard: <DashboardPage search={searchQuery} />, // pass search for possible filter use
-    students: <StudentsPage search={searchQuery} />,
-    fees: <FeesPage search={searchQuery} />,
-    reports: <ReportsPage />,
-    notifications: <NotificationsPage />,
-    settings: <SettingsPage />,
-  };
-
   return (
-    <div className="flex min-h-screen bg-neutral-bg font-sans">
+    <div className="flex min-h-screen bg-slate-50 font-sans">
       <Sidebar
-        activePage={activePage}
-        setActivePage={setActivePage}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
       />
-      <div className="flex-1 flex flex-col lg:ml-64">
+      <div className="flex-1 flex flex-col lg:ml-72">
         <Topbar setIsOpen={setIsSidebarOpen} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-        <main className="flex-1 p-6 overflow-auto">
-          {pageMap[activePage] || children}
+        <main className="flex-1 p-8 lg:p-10 overflow-auto">
+          <div className="max-w-7xl mx-auto">
+            <Outlet context={{ searchQuery }} />
+          </div>
         </main>
       </div>
     </div>
@@ -71,22 +60,19 @@ const AppWrapper = () => (
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/parent"
-            element={
-              <PrivateRoute>
-                <ParentPortal />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/*"
-            element={
-              <PrivateRoute>
-                <Layout />
-              </PrivateRoute>
-            }
-          />
+
+          <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/students" element={<StudentsPage />} />
+            <Route path="/fees" element={<FeesPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/parent" element={<ParentPortal />} />
+          </Route>
+
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>
     </LanguageProvider>
