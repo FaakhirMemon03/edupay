@@ -12,6 +12,7 @@ import ReportsPage from "./pages/ReportsPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
 import NotificationsPage from "./pages/NotificationsPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
+import RegisterPage from "./pages/RegisterPage.jsx";
 import ParentPortal from "./pages/ParentPortal.jsx";
 
 // Simple PrivateRoute guard
@@ -69,6 +70,7 @@ const AppWrapper = () => (
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route
             path="/parent"
             element={
