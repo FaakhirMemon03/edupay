@@ -74,14 +74,22 @@ export const loginUser = async (req, res) => {
 // @desc    Register a new user (parent or teacher)
 // @route   POST /api/auth/register
 // @access  Private/Admin
-export const registerUser = async (req, res) => {
-  const { name, email, password, role, schoolId } = req.body;
-
-  try {
-    const userExists = await User.findOne({ email });
-
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
+    // Find a default school if schoolId is not passed
+    let assignedSchoolId = schoolId;
+    if (!assignedSchoolId) {
+      if (req.user && req.user.schoolId) {
+        assignedSchoolId = req.user.schoolId;
+      } else {
+        let school = await School.findOne();
+        if (!school) {
+          school = await School.create({
+            name: "EduPay Beacon School",
+            address: "Gulshan-e-Iqbal, Karachi",
+            phone: "+92 300 1234567"
+          });
+        }
+        assignedSchoolId = school._id;
+      }
     }
 
     const user = await User.create({
@@ -89,7 +97,7 @@ export const registerUser = async (req, res) => {
       email,
       password,
       role: role || "parent",
-      schoolId: schoolId || req.user.schoolId,
+      schoolId: assignedSchoolId,
     });
 
     if (user) {
