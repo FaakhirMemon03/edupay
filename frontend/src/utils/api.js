@@ -7,7 +7,7 @@ const BASE_URL = "/api";
 const initMockDB = () => {
   if (!localStorage.getItem("edupay_mock_users")) {
     const defaultSchool = { _id: "school1", name: "EduPay Beacon School", address: "Gulshan-e-Iqbal, Karachi", phone: "+92 300 1234567" };
-    
+
     const mockUsers = [
       { _id: "admin1", name: "System Admin", email: "PP@admin.com", role: "admin", schoolId: "school1" },
       { _id: "parent1", name: "Rizwan Ahmed", email: "03001234567@edupay.com", role: "parent", schoolId: "school1" },
@@ -67,23 +67,8 @@ const verifyMockLateFees = () => {
   }
 };
 
-// Network checker helper
-const isBackendOnline = async () => {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1500); // short timeout
-    const res = await fetch(`${BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: "probe", password: "probe" }),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-    return true; // if reachable, return true (even 401/400 count as reachable)
-  } catch (err) {
-    return false; // failed network
-  }
-};
+// Optimized Network checker
+const isBackendOnline = async () => true; // Simplified, let fetch handle failures
 
 const getHeaders = (token) => {
   const headers = { "Content-Type": "application/json" };
@@ -97,63 +82,43 @@ const getHeaders = (token) => {
 export const apiClient = {
   // Authentication
   login: async (email, password) => {
-    const online = await isBackendOnline();
-    if (online) {
+    try {
       const res = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
       });
+
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to login");
       }
       return await res.json();
-    } else {
-      // Mock Login Mode
-      const users = JSON.parse(localStorage.getItem("edupay_mock_users") || "[]");
-      
-      // Special admin check
-      if (email === "PP@admin.com" && password === "PP@access.com") {
-        const admin = users.find(u => u.email === "PP@admin.com");
-        return {
-          _id: admin._id,
-          name: admin.name,
-          email: admin.email,
-          role: admin.role,
-          schoolId: admin.schoolId,
-          token: "mock-admin-token-12345"
-        };
+    } catch (err) {
+      if (err.message.includes("Failed to fetch")) {
+        // Mock Fallback if backend is truly down
+        const users = JSON.parse(localStorage.getItem("edupay_mock_users") || "[]");
+        if (email === "PP@admin.com" && password === "PP@access.com") {
+          const admin = users.find(u => u.email === "PP@admin.com");
+          return { _id: admin._id, name: admin.name, email: admin.email, role: admin.role, schoolId: admin.schoolId, token: "mock-admin-token" };
+        }
+        throw new Error("Backend connection failed.");
       }
-
-      // Standard user check
-      const user = users.find(u => u.email === email && password === "parent123");
-      if (user) {
-        return {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          schoolId: user.schoolId,
-          token: `mock-token-${user._id}`
-        };
-      } else {
-        throw new Error("Invalid email or password (Try: PP@admin.com / PP@access.com or 03001234567@edupay.com / parent123)");
-      }
+      throw err;
     }
   },
 
   getProfile: async (token) => {
-    const online = await isBackendOnline();
-    if (online) {
+    try {
       const res = await fetch(`${BASE_URL}/auth/profile`, { headers: getHeaders(token) });
+      if (!res.ok) throw new Error("Profile fetch failed");
       return await res.json();
-    } else {
-      const users = JSON.parse(localStorage.getItem("edupay_mock_users") || "[]");
-      const userId = token.startsWith("mock-token-") ? token.replace("mock-token-", "") : "admin1";
-      const user = users.find(u => u._id === userId) || users[0];
-      const school = JSON.parse(localStorage.getItem("edupay_school") || "{}");
-      return { ...user, schoolId: school };
+    } catch (err) {
+      if (token?.startsWith("mock-token")) {
+        const users = JSON.parse(localStorage.getItem("edupay_mock_users") || "[]");
+        return users[0];
+      }
+      throw err;
     }
   },
 
@@ -451,7 +416,7 @@ export const apiClient = {
       const fees = JSON.parse(localStorage.getItem("edupay_mock_fees") || "[]");
 
       const totalStudents = students.length;
-      
+
       const paidFees = fees.filter(f => f.status === "paid");
       const totalCollected = paidFees.reduce((acc, f) => acc + f.amount + (f.fine || 0), 0);
 
@@ -497,7 +462,7 @@ export const apiClient = {
       });
 
       // Sort by time
-      activities.sort((a,b) => new Date(b.time) - new Date(a.time));
+      activities.sort((a, b) => new Date(b.time) - new Date(a.time));
 
       return {
         totalStudents,
