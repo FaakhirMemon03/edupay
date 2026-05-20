@@ -4,7 +4,31 @@
 
 @layer base {
   body {
-    @apply bg-neutral-bg text-neutral-text font-sans;
+    @apply bg-slate-50 text-slate-900 font-sans selection:bg-primary/20 selection:text-primary;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20;
+  }
+
+  .glass-dark {
+    @apply bg-slate-900/70 backdrop-blur-md border border-slate-700/30;
+  }
+
+  .card-gradient {
+    @apply bg-gradient-to-br from-white to-slate-50;
+  }
+
+  .btn-primary {
+    @apply px-6 py-2.5 bg-primary text-white font-semibold rounded-button shadow-premium hover:shadow-elevated hover:bg-primary-dark active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2;
+  }
+
+  .btn-outline {
+    @apply px-6 py-2.5 bg-transparent border-2 border-slate-200 text-slate-700 font-semibold rounded-button hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2;
   }
 }
 
@@ -14,26 +38,45 @@
   line-height: 2.2;
 }
 
-/* Smooth Transition animations */
-.transition-all-ease {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Custom Scrollbar for modern touch */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  @apply bg-slate-100;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  @apply bg-slate-300 rounded-full border-2 border-slate-100 hover:bg-slate-400 transition-colors;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+
+.stagger-3 {
+  animation-delay: 0.3s;
 }

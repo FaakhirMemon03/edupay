@@ -39,8 +39,8 @@ const Layout = ({ children }) => {
   // Map page identifiers to components
   const pageMap = {
     dashboard: <DashboardPage search={searchQuery} />, // pass search for possible filter use
-    students: <StudentsPage search={searchQuery} />,   
-    fees: <FeesPage search={searchQuery} />,          
+    students: <StudentsPage search={searchQuery} />,
+    fees: <FeesPage search={searchQuery} />,
     reports: <ReportsPage />,
     notifications: <NotificationsPage />,
     settings: <SettingsPage />,
@@ -67,7 +67,7 @@ const Layout = ({ children }) => {
 const AppWrapper = () => (
   <AuthProvider>
     <LanguageProvider>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
