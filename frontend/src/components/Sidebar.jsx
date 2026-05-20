@@ -12,11 +12,11 @@ const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen }) => {
 
   const navItems = [
     { id: "dashboard", label: t("dashboard"), icon: LayoutDashboard },
-    { id: "students",  label: t("students"),  icon: Users },
-    { id: "fees",      label: t("fees"),      icon: CreditCard },
-    { id: "reports",   label: t("reports"),   icon: BarChart2 },
+    { id: "students", label: t("students"), icon: Users },
+    { id: "fees", label: t("fees"), icon: CreditCard },
+    { id: "reports", label: t("reports"), icon: BarChart2 },
     { id: "notifications", label: t("notifications"), icon: Bell },
-    { id: "settings",  label: t("settings"),  icon: Settings },
+    { id: "settings", label: t("settings"), icon: Settings },
   ];
 
   const handleNav = (id) => {
@@ -29,73 +29,80 @@ const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen }) => {
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-20 lg:hidden"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       <aside
         className={`
-          fixed top-0 left-0 h-full w-64 bg-white border-r border-neutral-border z-30
-          flex flex-col transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0 lg:static lg:z-auto
-          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          fixed top-0 left-0 h-full w-72 bg-slate-900 z-50
+          flex flex-col transform transition-all duration-300 ease-in-out border-r border-white/5
+          lg:translate-x-0 lg:ml-0
+          ${isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"}
         `}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between px-5 py-5 border-b border-neutral-border">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-primary rounded-button flex items-center justify-center">
-              <GraduationCap size={20} className="text-white" />
+        <div className="flex items-center justify-between px-8 py-8">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 rotate-3">
+              <GraduationCap size={22} className="text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-primary leading-none">EduPay</h1>
-              <p className="text-[10px] text-neutral-secondary leading-none mt-0.5">Fee Management</p>
+              <h1 className="text-xl font-black text-white tracking-tight">EduPay</h1>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse"></span>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Portal Active</p>
+              </div>
             </div>
           </div>
           <button
             onClick={() => setIsOpen(false)}
-            className="lg:hidden text-neutral-secondary hover:text-neutral-text"
+            className="lg:hidden text-slate-400 hover:text-white transition-colors"
           >
-            <X size={20} />
+            <X size={24} />
           </button>
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar">
+          <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Main Menu</p>
           {navItems.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => handleNav(id)}
               className={`
-                w-full flex items-center gap-3 px-3 py-2.5 rounded-button text-sm font-medium
-                transition-all duration-150 text-left
+                w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-semibold
+                transition-all duration-200 group
                 ${activePage === id
-                  ? "bg-primary text-white shadow-sm"
-                  : "text-neutral-secondary hover:bg-primary/5 hover:text-primary"}
+                  ? "bg-primary text-white shadow-lg shadow-primary/20"
+                  : "text-slate-400 hover:bg-white/5 hover:text-white"}
               `}
             >
-              <Icon size={18} />
+              <Icon size={20} className={`${activePage === id ? "text-white" : "text-slate-500 group-hover:text-primary-light"} transition-colors`} />
               {label}
             </button>
           ))}
         </nav>
 
         {/* User + Logout */}
-        <div className="px-3 py-4 border-t border-neutral-border">
-          <div className="flex items-center gap-3 px-3 py-2 mb-1 rounded-button bg-gray-50">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-              {user?.name?.[0]?.toUpperCase() || "A"}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-neutral-text truncate">{user?.name}</p>
-              <p className="text-xs text-neutral-secondary capitalize">{user?.role}</p>
+        <div className="p-6">
+          <div className="bg-slate-800/50 rounded-[24px] p-4 border border-white/5 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-primary-accent flex items-center justify-center text-white font-bold text-lg shadow-inner">
+                {user?.name?.[0]?.toUpperCase() || "A"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-white truncate">{user?.name}</p>
+                <p className="text-[11px] text-slate-400 font-medium uppercase tracking-wider">{user?.role || "Administrator"}</p>
+              </div>
             </div>
           </div>
+
           <button
             onClick={logout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-button text-sm font-medium
-              text-danger hover:bg-danger-light transition-all duration-150"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold
+              text-slate-400 hover:bg-danger/10 hover:text-danger border border-transparent hover:border-danger/20 transition-all duration-200"
           >
             <LogOut size={18} />
             {t("logout")}
