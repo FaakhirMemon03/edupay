@@ -3,12 +3,17 @@ import {
   LayoutDashboard, Users, CreditCard, BarChart2,
   Settings, LogOut, GraduationCap, X, Bell
 } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
 
-const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen }) => {
+const Sidebar = ({ isOpen, setIsOpen }) => {
   const { logout, user } = useAuth();
   const { t } = useLanguage();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const activePage = location.pathname.split("/")[1] || "dashboard";
 
   const navItems = [
     { id: "dashboard", label: t("dashboard"), icon: LayoutDashboard },
@@ -20,7 +25,7 @@ const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen }) => {
   ];
 
   const handleNav = (id) => {
-    setActivePage(id);
+    navigate(`/${id}`);
     setIsOpen(false);
   };
 
