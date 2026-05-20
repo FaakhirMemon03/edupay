@@ -19,60 +19,94 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-bg p-4">
-      {/* Top language toggle bar */}
-      <div className="w-full max-w-sm flex justify-end mb-4">
-        <button
-          onClick={toggleLanguage}
-          className="px-4 py-1.5 bg-white rounded-full shadow-sm text-sm font-semibold border border-neutral-border hover:bg-neutral-bg transition duration-200"
-        >
-          {t("languageToggle")}
-        </button>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px]" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-accent/20 rounded-full blur-[120px]" />
 
-      <div className="w-full max-w-sm bg-white p-6 rounded-card shadow-sm">
-        <h2 className="text-2xl font-bold mb-4 text-center">{t("loginTitle")}</h2>
-        <p className="text-sm text-neutral-secondary mb-4 text-center">{t("loginSubtitle")}</p>
-        {error && <div className="mb-3 text-danger text-sm text-center">{error}</div>}
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="login-email">{t("emailLabel")}</label>
-            <input
-              id="login-email"
-              type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-border rounded-button focus:outline-none focus:ring-2 focus:ring-primary"
-              required
-            />
+      <div className="w-full max-w-md p-8 relative z-10">
+        <div className="text-center mb-8 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl shadow-elevated mb-6 rotate-3">
+            <span className="text-white text-3xl font-bold">Edu</span>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="login-password">{t("passwordLabel")}</label>
-            <input
-              id="login-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-border rounded-button focus:outline-none focus:ring-2 focus:ring-primary"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-primary text-white py-2 rounded-button hover:bg-primary-dark disabled:opacity-50 font-semibold"
-          >
-            {loading ? t("loading") : t("signIn")}
-          </button>
-        </form>
+          <h1 className="text-4xl font-extrabold text-white tracking-tight mb-2">
+            Welcome Back
+          </h1>
+          <p className="text-slate-400 text-lg">
+            Manage your school payments with ease.
+          </p>
+        </div>
 
-        <p className="mt-6 text-center text-sm text-neutral-secondary">
-          {t("dontHaveAccount")}{" "}
-          <Link to="/register" className="text-primary font-semibold underline hover:text-primary-dark ml-1 mr-1">
-            {t("signUp")}
-          </Link>
-        </p>
+        <div className="glass-dark p-8 rounded-[32px] shadow-2xl border border-white/5 animate-fade-in stagger-1">
+          {error && (
+            <div className="mb-6 p-4 bg-danger/10 border border-danger/20 rounded-xl text-danger text-sm text-center animate-pulse">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-slate-300 text-sm font-medium mb-2 ml-1" htmlFor="login-email">
+                Email Address
+              </label>
+              <input
+                id="login-email"
+                type="text"
+                placeholder="admin@edupay.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-4 py-3.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-slate-300 text-sm font-medium mb-2 ml-1" htmlFor="login-password">
+                Password
+              </label>
+              <input
+                id="login-password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-4 py-3.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full btn-primary h-14 text-lg mt-2"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Processing...
+                </span>
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </form>
+
+          <div className="mt-8 pt-6 border-t border-white/5 flex flex-col items-center gap-4">
+            <p className="text-slate-400 text-sm">
+              Don't have an account?{" "}
+              <Link to="/register" className="text-primary font-bold hover:text-primary-light transition-colors">
+                Create account
+              </Link>
+            </p>
+            <button
+              onClick={toggleLanguage}
+              className="text-slate-500 text-xs hover:text-slate-300 flex items-center gap-2 transition-colors"
+            >
+              <span>🌐</span>
+              <span>{language === 'en' ? 'Switch to Urdu' : 'Switch to English'}</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
