@@ -52,20 +52,27 @@ export const loginUser = async (req, res) => {
       });
     }
 
+    console.log("Login Attempt:", { email, password });
     const user = await User.findOne({ email });
+    console.log("User found in DB:", user);
 
-    if (user && (await user.matchPassword(password))) {
-      return res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        schoolId: user.schoolId,
-        token: generateToken(user._id),
-      });
-    } else {
-      return res.status(401).json({ message: "Invalid email or password" });
+    if (user) {
+      const isMatch = await user.matchPassword(password);
+      console.log("Password comparison result:", isMatch);
+      
+      if (isMatch) {
+        return res.json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          schoolId: user.schoolId,
+          token: generateToken(user._id),
+        });
+      }
     }
+    
+    return res.status(401).json({ message: "Invalid email or password" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -78,28 +85,30 @@ export const registerUser = async (req, res) => {
   const { name, email, password, role, schoolId } = req.body;
 
   try {
+    console.log("Register Attempt:", { name, email, password, role, schoolId });
     const userExists = await User.findOne({ email });
 
     if (userExists) {
+      console.log("User already exists with email:", email);
       return res.status(400).json({ message: "User already exists" });
     }
 
     // Find a default school if schoolId is not passed
     let assignedSchoolId = schoolId;
+    if (!assignedSchoolId && req.user && req.user.schoolId) {
+      assignedSchoolId = req.user.schoolId;
+    }
+
     if (!assignedSchoolId) {
-      if (req.user && req.user.schoolId) {
-        assignedSchoolId = req.user.schoolId;
-      } else {
-        let school = await School.findOne();
-        if (!school) {
-          school = await School.create({
-            name: "EduPay Beacon School",
-            address: "Gulshan-e-Iqbal, Karachi",
-            phone: "+92 300 1234567"
-          });
-        }
-        assignedSchoolId = school._id;
+      let school = await School.findOne();
+      if (!school) {
+        school = await School.create({
+          name: "EduPay Beacon School",
+          address: "Gulshan-e-Iqbal, Karachi",
+          phone: "+92 300 1234567"
+        });
       }
+      assignedSchoolId = school._id;
     }
 
     const user = await User.create({
@@ -110,6 +119,8 @@ export const registerUser = async (req, res) => {
       schoolId: assignedSchoolId,
     });
 
+    console.log("Created User in DB:", user);
+
     if (user) {
       return res.status(201).json({
         _id: user._id,
@@ -118,10 +129,11 @@ export const registerUser = async (req, res) => {
         role: user.role,
         schoolId: user.schoolId,
       });
-    } else {
-      return res.status(400).json({ message: "Invalid user data" });
     }
+
+    return res.status(400).json({ message: "Invalid user data" });
   } catch (error) {
+    console.error("Register Error:", error);
     return res.status(500).json({ message: error.message });
   }
 };
